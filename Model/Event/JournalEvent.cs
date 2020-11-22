@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace EliteHelper
 {
+    //Base class for journal events
     public class JournalEvent
     {
         [JsonPropertyName("timestamp")]
