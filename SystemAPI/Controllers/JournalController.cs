@@ -33,5 +33,13 @@ namespace SystemAPI.Controllers
             string userName = Environment.UserName;
             return FileService.GetJournals(userName);
         }
+
+        [HttpGet]
+        [Route("Details/{journalName}")]
+        public IEnumerable<JournalEvent> GetJournalDetails(string journalName)
+        {
+            var journalDetails = FileService.GetJournalDetails(Environment.UserName, journalName);
+            return journalDetails;
+        }
     }
 }

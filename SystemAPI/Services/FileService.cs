@@ -58,11 +58,29 @@ namespace EliteHelper.SystemApi.Services
             return journals;
         }
 
-        public static string GetContent(string userName, string likeFileName)
+        public static IEnumerable<JournalEvent> GetJournalDetails (string userName, string journalName)
+        {
+            var journalContent = GetContent(userName, journalName);
+            List<JournalEvent> journalDetails = GetJournalEvents(journalContent);
+            return journalDetails;
+        }
+
+        static List<JournalEvent> GetJournalEvents(string[] journalContents)
+        {
+            List<JournalEvent> journalEvents = new List<JournalEvent>();
+            foreach (string journalEvent in journalContents)
+            {
+                var logEntry = System.Text.Json.JsonSerializer.Deserialize<JournalEvent>(journalEvent);
+                journalEvents.Add(logEntry);
+            }
+            return journalEvents;
+        }
+
+        public static string[] GetContent(string userName, string likeFileName)
         {
             string path = GetJournalPath(userName);
             var files = Directory.GetFiles(path, $"*{likeFileName}*");
-            return File.ReadAllText(files[0]);
+            return File.ReadAllLines(files[0]);
         }
     }
 }
