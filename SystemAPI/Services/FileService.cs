@@ -28,9 +28,16 @@ namespace EliteHelper.SystemApi.Services
             foreach (var file in files)
             {
                 string journalFilename = Path.GetFileNameWithoutExtension(file);
+                string dateStamp = journalFilename.Split('.')[1];
+                string year = dateStamp.Substring(0,2);
+                string month = dateStamp.Substring(2,2);
+                string day = dateStamp.Substring(4,2);
+                string time = dateStamp.Substring(6);
+                string displayName = $"{month}/{day}/{year} - {time}";
                 Journal journal = new Journal()
                 {
-                    Filename = journalFilename
+                    Filename = journalFilename,
+                    DisplayName = displayName
                 };
                 journals.Add(journal);
             }
