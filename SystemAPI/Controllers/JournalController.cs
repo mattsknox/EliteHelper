@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.Logging;
 
+using EliteHelper.SystemApi;
+using EliteHelper;
 
-using SystemApi.Services;
+
+using EliteHelper.SystemApi.Services;
 
 namespace SystemAPI.Controllers
 {
@@ -25,7 +28,7 @@ namespace SystemAPI.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<Journal> Get()
         {
             string userName = Environment.UserName;
             return FileService.GetJournals(userName);

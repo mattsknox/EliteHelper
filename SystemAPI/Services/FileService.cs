@@ -1,7 +1,7 @@
 using System.IO;
 using System.Collections.Generic;
 
-namespace SystemApi.Services
+namespace EliteHelper.SystemApi.Services
 {
     public static class FileService
     {
@@ -20,11 +20,42 @@ namespace SystemApi.Services
             return targetPath;
         }
 
-        public static IEnumerable<string> GetJournals(string userName)
+        public static IEnumerable<Journal> GetJournals(string userName)
         {
             string path = GetJournalPath(userName);
-            var files = Directory.GetFiles(path);
-            return files;
+            var files = Directory.GetFiles(path, "*.log");
+            List<Journal> journals = new List<Journal>();
+            foreach (var file in files)
+            {
+                string journalFilename = Path.GetFileNameWithoutExtension(file);
+                Journal journal = new Journal()
+                {
+                    Filename = journalFilename
+                };
+                journals.Add(journal);
+            }
+
+            return journals;
+        }
+        public static IEnumerable<string> GetStuff(string userName)
+        {
+            string path = GetJournalPath(userName);
+            var files = Directory.GetFiles(path, "*.json");
+            List<string> journals = new List<string>();
+            foreach (var file in files)
+            {
+                string journal = Path.GetFileNameWithoutExtension(file);
+                journals.Add(journal);
+            }
+
+            return journals;
+        }
+
+        public static string GetContent(string userName, string likeFileName)
+        {
+            string path = GetJournalPath(userName);
+            var files = Directory.GetFiles(path, $"*{likeFileName}*");
+            return File.ReadAllText(files[0]);
         }
     }
 }
