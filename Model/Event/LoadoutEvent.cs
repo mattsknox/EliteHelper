@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace EliteHelper
 {
     public class LoadoutEvent : JournalEvent

@@ -58,14 +58,34 @@ namespace EliteHelper.SystemApi.Services
             return journals;
         }
 
-        public static IEnumerable<JournalEvent> GetJournalDetails (string userName, string journalName)
+        public static JournalEvent[] GetJournalDetails (string userName, string journalName)
         {
             var journalContent = GetContent(userName, journalName);
-            List<JournalEvent> journalDetails = GetJournalEvents(journalContent);
+            JournalEvent[] journalDetails = GetJournalEvents(journalContent);
             return journalDetails;
         }
 
-        static List<JournalEvent> GetJournalEvents(string[] journalContents)
+        public static IJournalEvent GetJournal(string userName, string journalName, int journalIndex)
+        {
+            var logLine = GetLogLine(userName, journalName, journalIndex);
+            var journal = ParseJournalEvent(logLine);
+            return journal;
+        }
+
+        public static IJournalEvent ParseJournalEvent(string logLine)
+        {
+            var journalEvent = System.Text.Json.JsonSerializer.Deserialize<JournalEvent>(logLine);
+            switch (journalEvent.Event)
+            {
+                case "ReceiveText":
+                    return System.Text.Json.JsonSerializer.Deserialize<ReceiveTextEvent>(logLine);
+                break;
+            }
+
+            return journalEvent;
+        }
+
+        static JournalEvent[] GetJournalEvents(string[] journalContents)
         {
             List<JournalEvent> journalEvents = new List<JournalEvent>();
             foreach (string journalEvent in journalContents)
@@ -73,14 +93,21 @@ namespace EliteHelper.SystemApi.Services
                 var logEntry = System.Text.Json.JsonSerializer.Deserialize<JournalEvent>(journalEvent);
                 journalEvents.Add(logEntry);
             }
-            return journalEvents;
+            return journalEvents.ToArray();
         }
-
         public static string[] GetContent(string userName, string likeFileName)
         {
             string path = GetJournalPath(userName);
             var files = Directory.GetFiles(path, $"*{likeFileName}*");
             return File.ReadAllLines(files[0]);
+        }
+        
+        public static string GetLogLine(string userName, string likeFileName, int logIndex)
+        {
+            string path = GetJournalPath(userName);
+            var files = Directory.GetFiles(path, $"*{likeFileName}*");
+            var lines = File.ReadAllLines(files[0]);
+            return lines[logIndex];
         }
     }
 }

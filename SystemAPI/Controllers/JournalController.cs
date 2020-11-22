@@ -36,10 +36,18 @@ namespace SystemAPI.Controllers
 
         [HttpGet]
         [Route("Details/{journalName}")]
-        public IEnumerable<JournalEvent> GetJournalDetails(string journalName)
+        public JournalEvent[] GetJournalDetails(string journalName)
         {
             var journalDetails = FileService.GetJournalDetails(Environment.UserName, journalName);
             return journalDetails;
+        }
+
+        [HttpGet]
+        [Route("Entry/{journalName}/{journalIndex}")]
+        public IJournalEvent GetJournal(string journalName, int journalIndex)
+        {
+            var journal = FileService.GetJournal(Environment.UserName, journalName, journalIndex);
+            return journal;
         }
     }
 }
