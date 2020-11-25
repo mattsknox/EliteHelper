@@ -80,6 +80,54 @@ namespace EliteHelper.SystemApi.Services
                 case "ReceiveText":
                     return System.Text.Json.JsonSerializer.Deserialize<ReceiveTextEvent>(logLine);
                 break;
+                case "Cargo":
+                    return System.Text.Json.JsonSerializer.Deserialize<CargoEvent>(logLine);
+                break;
+                case "Commander":
+                    return System.Text.Json.JsonSerializer.Deserialize<CommanderEvent>(logLine);
+                break;
+                case "Docked":
+                    return System.Text.Json.JsonSerializer.Deserialize<DockedEvent>(logLine);
+                break;
+                case "Engineer":
+                    return System.Text.Json.JsonSerializer.Deserialize<EngineerEvent>(logLine);
+                break;
+                case "Fileheader":
+                    return System.Text.Json.JsonSerializer.Deserialize<FileheaderEvent>(logLine);
+                break;
+                case "LoadGame":
+                    return System.Text.Json.JsonSerializer.Deserialize<LoadGameEvent>(logLine);
+                break;
+                case "Loadout":
+                    return System.Text.Json.JsonSerializer.Deserialize<LoadoutEvent>(logLine);
+                break;
+                case "Location":
+                    return System.Text.Json.JsonSerializer.Deserialize<LocationEvent>(logLine);
+                break;
+                case "Materials":
+                    return System.Text.Json.JsonSerializer.Deserialize<MaterialsEvent>(logLine);
+                break;
+                case "Missions":
+                    return System.Text.Json.JsonSerializer.Deserialize<MissionsEvent>(logLine);
+                break;
+                case "Music":
+                    return System.Text.Json.JsonSerializer.Deserialize<MusicEvent>(logLine);
+                break;
+                case "Progress":
+                    return System.Text.Json.JsonSerializer.Deserialize<ProgressEvent>(logLine);
+                break;
+                case "Rank":
+                    return System.Text.Json.JsonSerializer.Deserialize<RankEvent>(logLine);
+                break;
+                case "Reputation":
+                    return System.Text.Json.JsonSerializer.Deserialize<ReputationEvent>(logLine);
+                break;
+                case "Shutdown":
+                    return System.Text.Json.JsonSerializer.Deserialize<ShutdownEvent>(logLine);
+                break;
+                case "Statistics":
+                    return System.Text.Json.JsonSerializer.Deserialize<StatisticsEvent>(logLine);
+                break;
             }
 
             return journalEvent;
@@ -102,11 +150,10 @@ namespace EliteHelper.SystemApi.Services
             return File.ReadAllLines(files[0]);
         }
         
-        public static string GetLogLine(string userName, string likeFileName, int logIndex)
+        public static string GetLogLine(string userName, string timestamp, int logIndex)
         {
             string path = GetJournalPath(userName);
-            var files = Directory.GetFiles(path, $"*{likeFileName}*");
-            var lines = File.ReadAllLines(files[0]);
+            var lines = File.ReadAllLines($@"{path}\Journal.{timestamp}.01.log");
             return lines[logIndex];
         }
     }
