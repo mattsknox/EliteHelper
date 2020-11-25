@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace EliteHelper
+namespace EliteHelper.Event
 {
     //Base class for journal events
     public class JournalEvent : IJournalEvent

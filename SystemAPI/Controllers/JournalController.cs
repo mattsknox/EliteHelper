@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.Logging;
 
 using EliteHelper.SystemApi;
+using EliteHelper.Event;
 using EliteHelper;
 
 

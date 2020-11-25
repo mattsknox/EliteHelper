@@ -1,4 +1,4 @@
-namespace EliteHelper
+namespace EliteHelper.Event
 {
     //TODO: Figure out the difference between this and the ProgressEvent
     public class RankEvent : JournalEvent

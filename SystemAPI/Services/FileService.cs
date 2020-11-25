@@ -1,5 +1,8 @@
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
+
+using EliteHelper.Event;
 
 namespace EliteHelper.SystemApi.Services
 {
@@ -75,6 +78,56 @@ namespace EliteHelper.SystemApi.Services
         public static IJournalEvent ParseJournalEvent(string logLine)
         {
             var journalEvent = System.Text.Json.JsonSerializer.Deserialize<JournalEvent>(logLine);
+
+            var allTypes = Assembly.GetExecutingAssembly().GetTypes();
+            allTypes = typeof(JournalEvent).Assembly.GetTypes();
+            List<System.Type> eventTypes = new List<System.Type>();
+
+            string debugTypes = $"TargetEvent:{journalEvent.Event};";
+            foreach(var t in allTypes)
+            {
+                debugTypes += $"{t.Name};";
+                string eventName = $"{journalEvent.Event}Event";
+                if (t.Name == eventName)
+                {
+                    var methods = typeof(System.Text.Json.JsonSerializer).GetMethods();
+                    foreach (var method in methods)
+                    {
+                        if (method.IsGenericMethod
+                            && method.Name == "Deserialize")
+                            {
+                                var parameters = method.GetParameters();
+                                if (parameters.Length == 2)
+                                {
+                                    var param1 = parameters[0];
+                                    var param2 = parameters[1];
+                                    var param1Match = typeof(System.String);
+                                    var param1Name = param1.Name;
+                                    var param1Type = param1.ParameterType;
+                                    if (param1Type == typeof(System.String)
+                                        && param1Name == "json")
+                                        {
+                                            MethodInfo generic  = method.MakeGenericMethod(t);
+                                            var options = new System.Text.Json.JsonSerializerOptions();
+                                            return (IJournalEvent)generic.Invoke(null, new object [] {logLine, null});
+                                        }
+                                }
+                            }
+                            debugTypes += $"{method.Name};";
+                    }
+                }
+            }
+
+            return new DeserializeExceptionEvent
+            {
+                //Message = $"No type definition found for {journalEvent.Event}"
+                Message = debugTypes
+            };
+        }
+
+        public static IJournalEvent ParseJournalEventSwitch(string logLine)
+        {
+            var journalEvent = System.Text.Json.JsonSerializer.Deserialize<JournalEvent>(logLine);
             switch (journalEvent.Event)
             {
                 case "ReceiveText":
@@ -89,8 +142,8 @@ namespace EliteHelper.SystemApi.Services
                 case "Docked":
                     return System.Text.Json.JsonSerializer.Deserialize<DockedEvent>(logLine);
                 break;
-                case "Engineer":
-                    return System.Text.Json.JsonSerializer.Deserialize<EngineerEvent>(logLine);
+                case "EngineerProgress":
+                    return System.Text.Json.JsonSerializer.Deserialize<EngineerProgressEvent>(logLine);
                 break;
                 case "Fileheader":
                     return System.Text.Json.JsonSerializer.Deserialize<FileheaderEvent>(logLine);
@@ -155,6 +208,13 @@ namespace EliteHelper.SystemApi.Services
             string path = GetJournalPath(userName);
             var lines = File.ReadAllLines($@"{path}\Journal.{timestamp}.01.log");
             return lines[logIndex];
+        }
+
+        static List<string> GetAllJournalTypes()
+        {
+            List<string> journalTypes = new List<string>();
+
+            return journalTypes;
         }
     }
 }

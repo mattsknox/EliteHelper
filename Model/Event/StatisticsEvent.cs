@@ -1,4 +1,4 @@
-namespace EliteHelper
+namespace EliteHelper.Event
 {
     //In case more stastistics pop up:
     // Regex to transform properties from JSON: 

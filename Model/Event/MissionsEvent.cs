@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EliteHelper
+namespace EliteHelper.Event
 {
     public class MissionsEvent : JournalEvent
     {

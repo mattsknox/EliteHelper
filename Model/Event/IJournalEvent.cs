@@ -1,6 +1,6 @@
 
 
-namespace EliteHelper
+namespace EliteHelper.Event
 {
     //For a "GetJournal" method that can return any type
     //implementing this interface

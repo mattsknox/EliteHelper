@@ -1,4 +1,4 @@
-namespace EliteHelper
+namespace EliteHelper.Event
 {
     public class ReputationEvent : JournalEvent
     {
