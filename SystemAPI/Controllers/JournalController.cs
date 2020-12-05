@@ -6,12 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.Logging;
 
-using EliteHelper.SystemApi;
+using EliteHelper.SystemApi.Services;
 using EliteHelper.Event;
 using EliteHelper;
-
-
-using EliteHelper.SystemApi.Services;
 
 namespace SystemAPI.Controllers
 {
@@ -39,7 +36,7 @@ namespace SystemAPI.Controllers
         [Route("Details/{journalName}")]
         public JournalEvent[] GetJournalDetails(string journalName)
         {
-            var journalDetails = FileService.GetJournalDetails(Environment.UserName, journalName);
+            var journalDetails = FileService.GetJournalFileEvents(Environment.UserName, journalName);
             return journalDetails;
         }
 
@@ -47,8 +44,33 @@ namespace SystemAPI.Controllers
         [Route("Entry/{journalName}/{journalIndex}")]
         public IJournalEvent GetJournal(string journalName, int journalIndex)
         {
-            var journal = FileService.GetJournal(Environment.UserName, journalName, journalIndex);
+            var journal = FileService.GetJournalEvent(Environment.UserName, journalName, journalIndex);
             return journal;
         }
+
+        [HttpGet]
+        [Route("ScanJournals")]
+        public List<string> ScanJournals()
+        {
+            var names = FileService.LearnNewJournalTypes(Environment.UserName);
+            return names;
+        }
+
+        [HttpGet]
+        [Route("GetUnknownJournalEventReport")]
+        public List<UnknownJournalEventReport> GetUnknownJournalEventReport()
+        {
+            var reports = FileService.GetUnknownJournalEvents(Environment.UserName);
+            return reports;
+        }
+
+        [HttpGet]
+        [Route("GetEventTranslationPlan/{journalName}/{eventIndex}")]
+        public List<MemberTranslationPlan> GetEventTranslationPlan(string journalName, int logIndex)
+        {
+            var result = FileService.GetEventTranslationPlan(Environment.UserName, journalName, logIndex);
+            return result;
+        }
+
     }
 }

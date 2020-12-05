@@ -61,14 +61,18 @@ namespace EliteHelper.SystemApi.Services
             return journals;
         }
 
-        public static JournalEvent[] GetJournalDetails (string userName, string journalName)
+        /*
+            Return all of the events in a single log file, expressed
+            as JournalEvents
+        */
+        public static JournalEvent[] GetJournalFileEvents (string userName, string journalName)
         {
             var journalContent = GetContent(userName, journalName);
-            JournalEvent[] journalDetails = GetJournalEvents(journalContent);
+            JournalEvent[] journalDetails = GetJournalEvents(journalContent, journalName);
             return journalDetails;
         }
 
-        public static IJournalEvent GetJournal(string userName, string journalName, int journalIndex)
+        public static IJournalEvent GetJournalEvent(string userName, string journalName, int journalIndex)
         {
             var logLine = GetLogLine(userName, journalName, journalIndex);
             var journal = ParseJournalEvent(logLine);
@@ -83,10 +87,8 @@ namespace EliteHelper.SystemApi.Services
             allTypes = typeof(JournalEvent).Assembly.GetTypes();
             List<System.Type> eventTypes = new List<System.Type>();
 
-            string debugTypes = $"TargetEvent:{journalEvent.Event};";
             foreach(var t in allTypes)
             {
-                debugTypes += $"{t.Name};";
                 string eventName = $"{journalEvent.Event}Event";
                 if (t.Name == eventName)
                 {
@@ -113,86 +115,30 @@ namespace EliteHelper.SystemApi.Services
                                         }
                                 }
                             }
-                            debugTypes += $"{method.Name};";
                     }
                 }
             }
 
             return new DeserializeExceptionEvent
             {
-                //Message = $"No type definition found for {journalEvent.Event}"
-                Message = debugTypes
+                Message = $"No type definition found for {journalEvent.Event}"
             };
         }
 
-        public static IJournalEvent ParseJournalEventSwitch(string logLine)
-        {
-            var journalEvent = System.Text.Json.JsonSerializer.Deserialize<JournalEvent>(logLine);
-            switch (journalEvent.Event)
-            {
-                case "ReceiveText":
-                    return System.Text.Json.JsonSerializer.Deserialize<ReceiveTextEvent>(logLine);
-                break;
-                case "Cargo":
-                    return System.Text.Json.JsonSerializer.Deserialize<CargoEvent>(logLine);
-                break;
-                case "Commander":
-                    return System.Text.Json.JsonSerializer.Deserialize<CommanderEvent>(logLine);
-                break;
-                case "Docked":
-                    return System.Text.Json.JsonSerializer.Deserialize<DockedEvent>(logLine);
-                break;
-                case "EngineerProgress":
-                    return System.Text.Json.JsonSerializer.Deserialize<EngineerProgressEvent>(logLine);
-                break;
-                case "Fileheader":
-                    return System.Text.Json.JsonSerializer.Deserialize<FileheaderEvent>(logLine);
-                break;
-                case "LoadGame":
-                    return System.Text.Json.JsonSerializer.Deserialize<LoadGameEvent>(logLine);
-                break;
-                case "Loadout":
-                    return System.Text.Json.JsonSerializer.Deserialize<LoadoutEvent>(logLine);
-                break;
-                case "Location":
-                    return System.Text.Json.JsonSerializer.Deserialize<LocationEvent>(logLine);
-                break;
-                case "Materials":
-                    return System.Text.Json.JsonSerializer.Deserialize<MaterialsEvent>(logLine);
-                break;
-                case "Missions":
-                    return System.Text.Json.JsonSerializer.Deserialize<MissionsEvent>(logLine);
-                break;
-                case "Music":
-                    return System.Text.Json.JsonSerializer.Deserialize<MusicEvent>(logLine);
-                break;
-                case "Progress":
-                    return System.Text.Json.JsonSerializer.Deserialize<ProgressEvent>(logLine);
-                break;
-                case "Rank":
-                    return System.Text.Json.JsonSerializer.Deserialize<RankEvent>(logLine);
-                break;
-                case "Reputation":
-                    return System.Text.Json.JsonSerializer.Deserialize<ReputationEvent>(logLine);
-                break;
-                case "Shutdown":
-                    return System.Text.Json.JsonSerializer.Deserialize<ShutdownEvent>(logLine);
-                break;
-                case "Statistics":
-                    return System.Text.Json.JsonSerializer.Deserialize<StatisticsEvent>(logLine);
-                break;
-            }
-
-            return journalEvent;
-        }
-
-        static JournalEvent[] GetJournalEvents(string[] journalContents)
+        /*
+            Return all of the journal events in a single journal file
+        */
+        static JournalEvent[] GetJournalEvents(string[] journalContents, string journalFilename)
         {
             List<JournalEvent> journalEvents = new List<JournalEvent>();
+            int i = 0;
             foreach (string journalEvent in journalContents)
             {
                 var logEntry = System.Text.Json.JsonSerializer.Deserialize<JournalEvent>(journalEvent);
+                logEntry.LogIndex = i;
+                logEntry.Filename = journalFilename;
                 journalEvents.Add(logEntry);
+                i++;
             }
             return journalEvents.ToArray();
         }
@@ -202,19 +148,268 @@ namespace EliteHelper.SystemApi.Services
             var files = Directory.GetFiles(path, $"*{likeFileName}*");
             return File.ReadAllLines(files[0]);
         }
+
+        public static string GetLogLine(string userName, int logIndex, string logFileName)
+        {
+            string path = GetJournalPath(userName);
+            var lines = File.ReadAllLines($@"{path}\{logFileName}");
+            return lines[logIndex];
+        }
         
         public static string GetLogLine(string userName, string timestamp, int logIndex)
         {
-            string path = GetJournalPath(userName);
-            var lines = File.ReadAllLines($@"{path}\Journal.{timestamp}.01.log");
-            return lines[logIndex];
+            string logFileName = $"Journal.{timestamp}.01.log";
+            return GetLogLine(userName, logIndex, logFileName);
         }
 
-        static List<string> GetAllJournalTypes()
+        public static string GetLogLine(string userName, JournalEvent journalEvent)
+        {
+            var logLine = GetLogLine(userName, journalEvent.LogIndex, $"{journalEvent.Filename}.log");
+            return logLine;
+        }
+
+        //Won't need this, but keeping it for reference
+        public static List<string> LearnNewJournalTypes(string userName)
         {
             List<string> journalTypes = new List<string>();
+            var allTypes = Assembly.GetExecutingAssembly().GetTypes();
+            allTypes = typeof(JournalEvent).Assembly.GetTypes();
+            List<System.Type> eventTypes = new List<System.Type>();
+            List<string> typeNames = new List<string>();
+            foreach(var t in allTypes)
+            {
+                typeNames.Add(t.Name);
+            }
+            
+            var journalFiles = GetJournals(userName);
+
+            foreach (var journalFile in journalFiles)
+            {
+                foreach(var journalEvent in GetJournalFileEvents(userName, journalFile.Filename))
+                {
+                    if (!journalTypes.Contains(journalEvent.Event))
+                    {
+                        journalTypes.Add(journalEvent.Event);
+                        string eventTypeName = $"{journalEvent.Event}Event";
+                        if(!typeNames.Contains(eventTypeName))
+                        {
+                            //Unknown type
+                            string logLine = GetLogLine(userName, journalEvent);
+                            var template = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(logLine);
+                            ProcessNewEventTemplate(template, typeNames);
+                            //TODO: finish
+                        }
+                    }
+                }
+            }
 
             return journalTypes;
         }
+        //Won't need this, but keeping it for reference
+        static void ProcessSubTemplate(Dictionary<string, string> eventTemplate, string newClassName)
+        {
+            //Write sub-template file
+        }
+
+        public static string GuessPropertyType(string valueExpression)
+        {
+            valueExpression = valueExpression.Trim();
+            string propertyType = "";
+            if (valueExpression.Contains(".")
+            && decimal.TryParse(valueExpression, out decimal decValue))
+            {
+                propertyType = "float";
+            }
+            else if (valueExpression.Length < 4
+            && int.TryParse(valueExpression, out int intValue))
+            {
+                propertyType = "int";
+            }
+            else if (long.TryParse(valueExpression, out long longValue))
+            {
+                propertyType = "long";
+            }
+            else if (valueExpression.StartsWith("{"))
+            {
+                propertyType = "object";
+
+                // var subTemplate = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(valueExpression);
+                // //type name is the memberName
+                // if (!knownTypeNames.Contains(memberName))
+                // {
+                //     ProcessSubTemplate(subTemplate, memberName);
+                // }
+            }
+            else if (valueExpression.StartsWith("["))
+            {
+                propertyType = "array";
+                //TODO: Finish
+                //Have to get user input around here for arrays, I think
+            }
+            else
+            {
+                propertyType = "string";
+            }
+            return propertyType;
+        }
+
+        //Won't need this, but keeping it for reference
+        static void ProcessNewEventTemplate(Dictionary<string, string> eventTemplate, List<string> knownTypeNames)
+        {
+            var memberNames = eventTemplate.Keys;
+            List<string> blackList = new List<string> {"timestamp", "event"};
+            List<JournalEventPropertyInfo> newTypeMembers = new List<JournalEventPropertyInfo>();
+            foreach (string memberName in memberNames)
+            {
+                if (!blackList.Contains(memberName))
+                {
+
+                    string propertyType = "";
+                    string propertyValueExpression = eventTemplate[memberName].Trim();
+                    //Factoring this out into GuessPRopertyType
+                    if (propertyValueExpression.Contains(".")
+                    && decimal.TryParse(propertyValueExpression, out decimal decValue))
+                    {
+                        propertyType = "float";
+                    }
+                    else if (propertyValueExpression.Length < 4
+                    && int.TryParse(propertyValueExpression, out int intValue))
+                    {
+                        propertyType = "int";
+                    }
+                    else if (long.TryParse(propertyValueExpression, out long longValue))
+                    {
+                        propertyType = "long";
+                    }
+                    else if (propertyValueExpression.StartsWith("{"))
+                    {
+                        var subTemplate = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(propertyValueExpression);
+                        //type name is the memberName
+                        if (!knownTypeNames.Contains(memberName))
+                        {
+                            ProcessSubTemplate(subTemplate, memberName);
+                        }
+                    }
+                    else if (propertyValueExpression.StartsWith("["))
+                    {
+                        propertyType = "array";
+                        //TODO: Finish
+                        //Have to get user input around here for arrays, I think
+                    }
+                    else
+                    {
+                        propertyType = "string";
+                    }
+
+                    var propertyInfo = new JournalEventPropertyInfo
+                    {
+                        PropertyName = memberName,
+                        ValueType = propertyType    
+                    };
+                    newTypeMembers.Add(propertyInfo);
+                }
+            }
+            //newTypeMembers should have a good list of type names for the object
+            
+        }
+
+        public static List<MemberTranslationPlan> GetEventTranslationPlan(string userName, string journalName, int logIndex)
+        {
+            var line = GetLogLine(userName, logIndex, journalName);
+            var template = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(line);
+
+            List<MemberTranslationPlan> eventTranslationPlan
+                = new List<MemberTranslationPlan>();
+
+            List<string> blackList = new List<string> {"timestamp", "event"};
+            foreach(string member in template.Keys)
+            {
+                if (!blackList.Contains(member))
+                {
+                    string valueExpression = template[member];
+                    var plan = new MemberTranslationPlan();
+                    plan.Filename = journalName;
+                    plan.FileContents = line;
+                    plan.ValueType = GuessPropertyType(valueExpression);
+                    plan.Name = member;
+                    eventTranslationPlan.Add(plan);
+                }
+            }
+            return eventTranslationPlan;
+        }
+
+        public static List<UnknownJournalEventReport> GetUnknownJournalEvents(string userName)
+        {
+            List<UnknownJournalEventReport> journalEventReports
+                = new List<UnknownJournalEventReport>();
+
+            List<string> journalTypes = new List<string>();
+            var allTypes = Assembly.GetExecutingAssembly().GetTypes();
+            allTypes = typeof(JournalEvent).Assembly.GetTypes();
+            List<System.Type> eventTypes = new List<System.Type>();
+            List<string> typeNames = new List<string>();
+            foreach(var t in allTypes)
+            {
+                typeNames.Add(t.Name);
+            }
+            
+            var journalFiles = GetJournals(userName);
+
+            foreach (var journalFile in journalFiles)
+            {
+                var report = new UnknownJournalEventReport();
+                report.LogName = journalFile.Filename;
+                int i = 0;
+                foreach(var journalEvent in GetJournalFileEvents(userName, journalFile.Filename))
+                {
+                    if (!journalTypes.Contains(journalEvent.Event))
+                    { //Indicates an unknown type on this log line
+                        var eventInfo = new JournalEventInfo();
+                        eventInfo.LogIndex = i;
+                        eventInfo.EventName = journalEvent.Event;
+                        if (report.NewEventData == null)
+                        {
+                            report.NewEventData = new List<JournalEventInfo>();
+                        }
+                        report.NewEventData.Add(eventInfo);
+
+                        journalTypes.Add(journalEvent.Event);
+                    }
+                    i++;
+                }
+                if (report.NewEventData != null
+                && report.NewEventData.Count > 0)
+                {
+                    journalEventReports.Add(report);
+                }
+            }
+
+            return journalEventReports;
+        }
+
+
+        class JournalEventPropertyInfo
+        {
+            public string ValueType { get; set; }
+            public string PropertyName { get; set; }
+        }
     }
+        public class UnknownJournalEventReport
+        {
+            public string LogName { get; set; }
+            public List<JournalEventInfo> NewEventData { get; set; }
+        }
+        public class JournalEventInfo
+        {
+            public int LogIndex { get; set; }
+            public string EventName { get; set; }
+        }
+
+        public class MemberTranslationPlan
+        {
+            public string Filename { get; set; }
+            public string FileContents { get; set; }
+            public string Name { get; set; }
+            public string ValueType { get; set; }
+        }
 }

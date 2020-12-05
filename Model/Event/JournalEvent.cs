@@ -10,5 +10,8 @@ namespace EliteHelper.Event
         public string Timestamp { get; set; }
         [JsonPropertyName("event")]
         public string Event { get; set; }
+        //Line of the file to find the log entry
+        public int LogIndex { get; set; }
+        public string Filename { get; set; }
     }
 }
