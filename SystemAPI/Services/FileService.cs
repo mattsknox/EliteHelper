@@ -1,6 +1,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.Json;
 
 using EliteHelper.Event;
 
@@ -211,7 +212,7 @@ namespace EliteHelper.SystemApi.Services
             //Write sub-template file
         }
 
-        public static string GuessPropertyType(string valueExpression)
+        public static string GuessPropertyType(JsonProperty property, string valueExpression)
         {
             valueExpression = valueExpression.Trim();
             string propertyType = "";
@@ -313,28 +314,42 @@ namespace EliteHelper.SystemApi.Services
             
         }
 
-        public static List<MemberTranslationPlan> GetEventTranslationPlan(string userName, string journalName, int logIndex)
+        public static EventTranslationPlan GetEventTranslationPlan(string userName, string journalName, int logIndex)
         {
-            var line = GetLogLine(userName, logIndex, journalName);
-            var template = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(line);
-
-            List<MemberTranslationPlan> eventTranslationPlan
-                = new List<MemberTranslationPlan>();
-
-            List<string> blackList = new List<string> {"timestamp", "event"};
-            foreach(string member in template.Keys)
+            if (!journalName.EndsWith(".log"))
             {
-                if (!blackList.Contains(member))
+                journalName += ".log";
+            }
+            var line = GetLogLine(userName, logIndex, journalName);
+
+            EventTranslationPlan eventTranslationPlan
+                = new EventTranslationPlan();
+            eventTranslationPlan.Members = new List<MemberTranslationPlan>();
+            eventTranslationPlan.Filename = journalName;
+            eventTranslationPlan.FileContents = line;
+            List<string> blackList = new List<string> {"timestamp", "event"};
+
+            var template = System.Text.Json.JsonSerializer.Deserialize<object>(line);
+            var newJson = JsonDocument.Parse(line);
+            var root = newJson.RootElement;
+
+            var subElements = root.EnumerateObject();
+
+            while(subElements.MoveNext())
+            {
+                var subElement = subElements.Current;
+                string name = subElement.Name;
+                if (!blackList.Contains(name))
                 {
-                    string valueExpression = template[member];
+                    var valueExpression = subElement.Value.ToString();
                     var plan = new MemberTranslationPlan();
-                    plan.Filename = journalName;
-                    plan.FileContents = line;
-                    plan.ValueType = GuessPropertyType(valueExpression);
-                    plan.Name = member;
-                    eventTranslationPlan.Add(plan);
+                        plan.ValueType = GuessPropertyType(subElement, valueExpression);
+                        plan.Name = subElement.Name;
+
+                    eventTranslationPlan.Members.Add(plan);
                 }
             }
+
             return eventTranslationPlan;
         }
 
@@ -407,9 +422,14 @@ namespace EliteHelper.SystemApi.Services
 
         public class MemberTranslationPlan
         {
-            public string Filename { get; set; }
-            public string FileContents { get; set; }
             public string Name { get; set; }
             public string ValueType { get; set; }
+        }
+
+        public class EventTranslationPlan
+        {
+            public string Filename { get; set; }
+            public string FileContents { get; set; }
+            public List<MemberTranslationPlan> Members { get; set; }
         }
 }

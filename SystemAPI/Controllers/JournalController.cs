@@ -66,7 +66,7 @@ namespace SystemAPI.Controllers
 
         [HttpGet]
         [Route("GetEventTranslationPlan/{journalName}/{eventIndex}")]
-        public List<MemberTranslationPlan> GetEventTranslationPlan(string journalName, int logIndex)
+        public EventTranslationPlan GetEventTranslationPlan(string journalName, int logIndex)
         {
             var result = FileService.GetEventTranslationPlan(Environment.UserName, journalName, logIndex);
             return result;
