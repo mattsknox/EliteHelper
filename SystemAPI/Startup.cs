@@ -15,6 +15,7 @@ namespace SystemAPI
 {
     public class Startup
     {
+        readonly string _allowAll = "AllowAll";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -27,7 +28,10 @@ namespace SystemAPI
         {
             services.AddCors(options => 
             {
-                options.AddPolicy("AllowAll", builder => builder.AllowAnyOrigin());
+                options.AddPolicy(_allowAll, builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
             });
             services.AddControllers();
             // services.AddSwaggerGen(c =>
@@ -50,7 +54,7 @@ namespace SystemAPI
 
             app.UseRouting();
 
-            app.UseCors();
+            app.UseCors(_allowAll);
 
             app.UseAuthorization();
 
