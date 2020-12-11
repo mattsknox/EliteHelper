@@ -2,6 +2,7 @@
 
 @using System.Collections.Generic
 @using System.Net.Http
+@using EliteHelper
 
 @inject HttpClient httpClient
 
@@ -10,29 +11,31 @@
 Welcome to your new app.
 
 Let's hook up to the Elite Dangerous Player Journal.
-
+Journals: @(journals.Count)
 @foreach(var journal in journals)
 {
     <p>
-        @journal
+        <span>Journal: </span>
+        <span>@(journal.Filename) </span>
+        <span>@(journal.DisplayName) </span>
     </p>
 }
-
-@* <SurveyPrompt Title="How is Blazor working for you?" /> *@
 
 @code {
 
 
-    List<string> journals = new List<string>();
+    List<Journal> journals = new List<Journal>();
 
     protected override async Task OnInitializedAsync()
     {
-        string baseUri = "http://localhost:5000";
+        string baseUri = "https://localhost:5001";
         string endpoint = "Journal";
         string uri = $@"{baseUri}/{endpoint}";
 
-        var response = await httpClient.GetAsync(uri);
+        var request = new HttpRequestMessage(HttpMethod.Get, uri);
+        request.SetBrowserRequestMode(BrowserRequestMode.Cors);
+        var response = await httpClient.SendAsync(request);
         var content = await response.Content.ReadAsStringAsync();
-        journals = System.Text.Json.JsonSerializer.Deserialize<List<string>>(content);
+        journals = System.Text.Json.JsonSerializer.Deserialize<List<Journal>>(content);
     }
 }

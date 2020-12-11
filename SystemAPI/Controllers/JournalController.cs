@@ -13,7 +13,6 @@ using EliteHelper;
 namespace SystemAPI.Controllers
 {
     [ApiController]
-    [EnableCors("AllowAll")]  
     [Route("[controller]")]
     public class JournalController : ControllerBase
     {
