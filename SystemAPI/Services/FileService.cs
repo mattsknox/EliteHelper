@@ -409,16 +409,7 @@ namespace EliteHelper.SystemApi.Services
             public string PropertyName { get; set; }
         }
     }
-        public class UnknownJournalEventReport
-        {
-            public string LogName { get; set; }
-            public List<JournalEventInfo> NewEventData { get; set; }
-        }
-        public class JournalEventInfo
-        {
-            public int LogIndex { get; set; }
-            public string EventName { get; set; }
-        }
+        
 
         public class MemberTranslationPlan
         {
