@@ -56,7 +56,7 @@ namespace SystemAPI.Controllers
         }
 
         [HttpGet]
-        [Route("GetUnknownJournalEventReport")]
+        [Route("UnknownJournalEventReport")]
         public List<UnknownJournalEventReport> GetUnknownJournalEventReport()
         {
             var reports = FileService.GetUnknownJournalEvents(Environment.UserName);
