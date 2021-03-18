@@ -1,0 +1,4 @@
+{ "timestamp":"2020-10-01T05:22:20Z", "event":"NavRoute", "Route":[ 
+{ "StarSystem":"Hyades Sector PL-H a25-2", "SystemAddress":40554691578696, "StarPos":[26.81250,-40.71875,-11.62500], "StarClass":"T" }, 
+{ "StarSystem":"Edin", "SystemAddress":5370319489864, "StarPos":[27.18750,-43.96875,-12.21875], "StarClass":"TTS" }
+ ] }
