@@ -1,0 +1,31 @@
+﻿@using EliteHelper.Services 
+
+@namespace EliteHelper.Shared
+
+<div class="status-dashboard">
+    <div class="service-status-section">
+        <h5>
+            Journal Service
+        </h5>
+        @if (JournalServiceStatus != null)
+        {
+            <p>
+                @if (JournalServiceStatus.Status == ServiceStatus.Working)
+                {
+                    <span>Working...</span>
+                }
+                else
+                {
+                    <span>Online: @JournalService.IsApiConnected</span>
+                }
+            </p>
+
+        }
+        else
+        {
+            <span>No status, please refresh</span>
+        }
+    </div>
+    
+    <button class="refresh-button" @onclick="Refresh">Refresh</button>
+</div>

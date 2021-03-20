@@ -25,6 +25,13 @@ namespace SystemAPI.Controllers
         }
 
         [HttpGet]
+        [Route("Status")]
+        public async Task<bool> GetStatus()
+        {
+            return true;
+        }
+
+        [HttpGet]
         public IEnumerable<Journal> Get()
         {
             string userName = Environment.UserName;
