@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class SearchAndRescueStatistics 
+    public class SearchAndRescue 
     {
         public long SearchRescue_Traded { get; set; }
         public long SearchRescue_Profit { get; set; }

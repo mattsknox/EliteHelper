@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class MulticrewStatistics 
+    public class Multicrew 
     {
         public long Multicrew_Time_Total { get; set; }
         public long Multicrew_Gunner_Time_Total { get; set; }

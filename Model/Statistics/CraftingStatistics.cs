@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class CraftingStatistics 
+    public class Crafting 
     {
         public long Count_Of_Used_Engineers { get; set; }
         public long Recipes_Generated { get; set; }

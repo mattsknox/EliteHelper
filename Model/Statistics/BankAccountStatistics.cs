@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class BankAccountStatistics
+    public class BankAccount
     {
         public long Current_Wealth { get; set; }
         public long Spent_On_Ships { get; set; }

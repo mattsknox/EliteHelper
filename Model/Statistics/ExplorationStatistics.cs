@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class ExplorationStatistics 
+    public class Exploration 
     {
         public long Systems_Visited { get; set; }
         public long Exploration_Profits { get; set; }

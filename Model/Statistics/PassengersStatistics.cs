@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class PassengersStatistics 
+    public class Passengers 
     {
         public long Passengers_Missions_Accepted { get; set; }
         public long Passengers_Missions_Disgruntled { get; set; }

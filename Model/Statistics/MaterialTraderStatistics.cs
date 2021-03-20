@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class MaterialTraderStatistics 
+    public class MaterialTrader 
     {
         public long Trades_Completed { get; set; }
         public long Materials_Traded { get; set; }

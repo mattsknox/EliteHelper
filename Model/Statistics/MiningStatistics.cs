@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class MiningStatistics 
+    public class Mining 
     {
         public long Mining_Profits { get; set; }
         public long Quantity_Mined { get; set; }

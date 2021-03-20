@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class TradingStatistics 
+    public class Trading 
     {
         public long Markets_Traded_With { get; set; }
         public long Market_Profits { get; set; }

@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class CrimeStatistics
+    public class Crime
     {
         public long Notoriety { get; set; }
         public long Fines { get; set; }

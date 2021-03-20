@@ -1,6 +1,8 @@
+using EliteHelper.Statistics;
+
 namespace EliteHelper.Event
 {
-    //In case more stastistics pop up:
+    //In case more statistics pop up:
     // Regex to transform properties from JSON: 
     //  "(.*)".*
     //  public long $1 { get; set; }
@@ -10,20 +12,20 @@ namespace EliteHelper.Event
     // public class $1 {
     public class StatisticsEvent : JournalEvent
     {
-        public BankAccountStatistics Bank_Account { get; set; }
-        public CombatStatistics Combat { get; set; }
-        public CrimeStatistics Crime { get; set; }
-        public SmugglingStatistics Smuggling { get; set; }
-        public TradingStatistics Trading { get; set; }
-        public MiningStatistics Mining { get; set; }
-        public ExplorationStatistics Exploration { get; set; }
-        public PassengersStatistics Passengers { get; set; }
-        public SearchAndRescueStatistics Search_And_Rescue { get; set; }
-        public CraftingStatistics Crafting { get; set; }
-        public CrewStatistics Crew { get; set; }
-        public MulticrewStatistics Multicrew { get; set; }
-        public MaterialTraderStatistics Material_Trader_Stats { get; set; }
-        public CQCStatistics CQC { get; set; }
+        public BankAccount Bank_Account { get; set; }
+        public Combat Combat { get; set; }
+        public Crime Crime { get; set; }
+        public Smuggling Smuggling { get; set; }
+        public Trading Trading { get; set; }
+        public Mining Mining { get; set; }
+        public Exploration Exploration { get; set; }
+        public Passengers Passengers { get; set; }
+        public SearchAndRescue Search_And_Rescue { get; set; }
+        public Crafting Crafting { get; set; }
+        public Crew Crew { get; set; }
+        public Multicrew Multicrew { get; set; }
+        public MaterialTrader Material_Trader_Stats { get; set; }
+        public CQC CQC { get; set; }
     }
     
 }

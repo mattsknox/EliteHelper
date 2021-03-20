@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class SmugglingStatistics 
+    public class Smuggling 
     {
         public long Black_Markets_Traded_With { get; set; }
         public long Black_Markets_Profits { get; set; }

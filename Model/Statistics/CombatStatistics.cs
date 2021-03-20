@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class CombatStatistics
+    public class Combat
     {
         public long MyProperty { get; set; }
         public long Bounties_Claimed { get; set; }

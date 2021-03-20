@@ -1,6 +1,6 @@
-namespace EliteHelper
+namespace EliteHelper.Statistics
 {
-    public class CQCStatistics 
+    public class CQC 
     {
         public long CQC_Credits_Earned { get; set; }
         public long CQC_Time_Played { get; set; }
